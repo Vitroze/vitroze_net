@@ -138,3 +138,17 @@ function net.Receive( sName, fCallback, iCooldown )
         net.ModifyTimeCooldown(sName, iCooldown)
     end
 end
+
+util = util or {}
+
+VitrozeNet.fCallBackDecompress = VitrozeNet.fCallBackDecompress or util.Decompress
+function util.Decompress(sMessage, iSize)
+    iSize = iSize or 512
+
+    if not sMessage or sMessage:len() > iSize then
+        Print("[Net-Blocker] Blocked oversized compressed net message (" .. sMessage:len() .. " bytes)")
+        return nil
+    end
+
+    return VitrozeNet.fCallBackDecompress(sMessage)
+end
