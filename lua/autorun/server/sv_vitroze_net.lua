@@ -74,7 +74,7 @@ function net.Incoming( iLen, pPlayer )
     
     if iInt == 1 then
         Print( " --------------------------------------------------------- ")
-        Print( "NetReceive (Incoming) : ", sName, " - ", iID )
+        Print( "NetReceive (Receive) : ", sName, " - ", iID )
         Print( "Info Player : ", pPlayer:Nick(), " - ", pPlayer:SteamID(), " - ", pPlayer:SteamID64() )
         Print( "Cooldown Net : ", tostring(iTime).."s" )
         Print( "Date : ", os.date( "%H:%M:%S - %d/%m/%Y" ) )
@@ -87,7 +87,7 @@ function net.Incoming( iLen, pPlayer )
         local iTime = GetConVar( "sv_vitroze_net_logger_time" ):GetInt()
         if GetTimePLAYER(pPlayer) > iTime then
             Print( " --------------------------------------------------------- ")
-            Print( "NetReceive (Incoming) : ", sName, " - ", iID, "ALERT TIMER" )
+            Print( "NetReceive (Receive) : ", sName, " - ", iID, "ALERT TIMER" )
             Print( "Info Player : ", pPlayer:Nick(), " - ", pPlayer:SteamID(), " - ", pPlayer:SteamID64() )
             Print( "Time Player : ", GetTimePLAYER(pPlayer) )
             Print( "Cooldown Net : ", tostring(iTime).."s" )
@@ -101,7 +101,7 @@ function net.Incoming( iLen, pPlayer )
 
     if VitrozeNet.NetSpam and VitrozeNet.NetSpam[pPlayer:SteamID64()] and VitrozeNet.NetSpam[pPlayer:SteamID64()][sName:lower()] and VitrozeNet.NetSpam[pPlayer:SteamID64()][sName:lower()] > CurTime() then
         Print("--------------------------------------------------------- ")
-        Print( "NetReceive (Incoming) : ", sName, " - ", iID, "SPAM PROTECTION")
+        Print( "NetReceive (Receive) : ", sName, " - ", iID, "SPAM PROTECTION")
         Print( "Info Player : ", pPlayer:Nick(), " - ", pPlayer:SteamID(), " - ", pPlayer:SteamID64() )
         Print( "Time Player (Cooldown Net): ", math.Round(VitrozeNet.NetSpam[pPlayer:SteamID64()][sName:lower()] - CurTime(), 2), "s" )
         Print( "Cooldown Net : ", tostring(iTime).."s" )
