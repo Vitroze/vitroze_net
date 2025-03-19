@@ -4,12 +4,12 @@ VitrozeNet = VitrozeNet or {}
 VitrozeNet.fCallBackNetIncoming = VitrozeNet.fCallBackNetIncoming or net.Incoming
 VitrozeNet.fCallBackNetReceive = VitrozeNet.fCallBackNetReceive or net.Receive
 VitrozeNet.NetSpam = VitrozeNet.NetSpam or {}
-VitrozeNet.NetConfig = VitrozeNet.NetSpam or {}
+VitrozeNet.NetConfig = VitrozeNet.NetConfig or {}
 
-CreateConVar( "sv_vitroze_net_logger", 1, FCVAR_ARCHIVE, "0 : Disable, 1 : Enable All ; 2 : Enable only under a certain time games")
+CreateConVar( "sv_vitroze_net_logger", 1, FCVAR_ARCHIVE, " Activate only the logger when it has a spam or when the game time is less than the convar: sv_vitroze_net_logger_time")
 CreateConVar( "sv_vitroze_net_saveallloger", 2, FCVAR_ARCHIVE, "0 : Disable, 1 : Enable All ; 2 : Enable only under a certain time games and Spam Protection")
 CreateConVar( "sv_vitroze_net_timecooldown", 0.5, FCVAR_ARCHIVE, "Time in seconds to enable the cooldown")
-CreateConVar( "sv_vitroze_net_logger_time", 0, FCVAR_ARCHIVE, "Time in seconds to enable the logger (only if sv_vitroze_net_logger is set to 2)")
+CreateConVar( "sv_vitroze_net_logger_time", 60, FCVAR_ARCHIVE, "Time in minutes to enable the logger (only if sv_vitroze_net_logger is set to 2)")
 
 local function fileLogs( sText )
     local sPath = "vitroze_net_logs.txt"
@@ -37,25 +37,22 @@ local function Print( ... )
 end 
 
 local function saveLogs( sNameNet, iIDNet, pPlayer, iTime )
+
     local sFormatMessage = string.format([[---------------------------------------------------------
     NetReceive (Incoming) : %s - %s
     Info Player : %s - %s - %s
-    Time Player : %s
     Cooldown Net : %s
     Date : %s
-    ]], sNameNet, iIDNet, pPlayer:Nick(), pPlayer:SteamID(), pPlayer:SteamID64(), iTime, iTime, os.date( "%H:%M:%S - %d/%m/%Y" ) )
+    ]], sNameNet, iIDNet, pPlayer:Nick(), pPlayer:SteamID(), pPlayer:SteamID64(), iTime, os.date( "%H:%M:%S - %d/%m/%Y" ) )
 
     fileLogs( sFormatMessage )
 
 end
 
 local function GetTimePLAYER(pPlayer)
-    if SAM then
-
-    elseif uTime then
-        
+    if sam then
+        return pPlayer:GetUTime()
     end
-
 end
 
 function net.ModifyTimeCooldown(sName, iTime)
@@ -79,7 +76,7 @@ function net.Incoming( iLen, pPlayer )
         Print( " --------------------------------------------------------- ")
         Print( "NetReceive (Incoming) : ", sName, " - ", iID )
         Print( "Info Player : ", pPlayer:Nick(), " - ", pPlayer:SteamID(), " - ", pPlayer:SteamID64() )
-        Print( "Cooldown Net : ", iTime, "s" )
+        Print( "Cooldown Net : ", tostring(iTime).."s" )
         Print( "Date : ", os.date( "%H:%M:%S - %d/%m/%Y" ) )
 
         if iIDFile == 1 then
@@ -93,7 +90,7 @@ function net.Incoming( iLen, pPlayer )
             Print( "NetReceive (Incoming) : ", sName, " - ", iID, "ALERT TIMER" )
             Print( "Info Player : ", pPlayer:Nick(), " - ", pPlayer:SteamID(), " - ", pPlayer:SteamID64() )
             Print( "Time Player : ", GetTimePLAYER(pPlayer) )
-            Print( "Cooldown Net : ", iTime, "s" )
+            Print( "Cooldown Net : ", tostring(iTime).."s" )
             Print( "Date : ", os.date( "%H:%M:%S - %d/%m/%Y" ) )
 
             if iIDFile != 0 then
@@ -107,7 +104,7 @@ function net.Incoming( iLen, pPlayer )
         Print( "NetReceive (Incoming) : ", sName, " - ", iID, "SPAM PROTECTION")
         Print( "Info Player : ", pPlayer:Nick(), " - ", pPlayer:SteamID(), " - ", pPlayer:SteamID64() )
         Print( "Time Player (Cooldown Net): ", math.Round(VitrozeNet.NetSpam[pPlayer:SteamID64()][sName:lower()] - CurTime(), 2), "s" )
-        Print( "Cooldown Net : ", iTime, "s" )
+        Print( "Cooldown Net : ", tostring(iTime).."s" )
         Print( "Date : ", os.date( "%H:%M:%S - %d/%m/%Y" ) )
 
         if iIDFile != 0 then
@@ -137,18 +134,4 @@ function net.Receive( sName, fCallback, iCooldown )
     if iCooldown then
         net.ModifyTimeCooldown(sName, iCooldown)
     end
-end
-
-util = util or {}
-
-VitrozeNet.fCallBackDecompress = VitrozeNet.fCallBackDecompress or util.Decompress
-function util.Decompress(sMessage, iSize)
-    iSize = iSize or 512
-
-    if not sMessage or sMessage:len() > iSize then
-        Print("[Net-Blocker] Blocked oversized compressed net message (" .. sMessage:len() .. " bytes)")
-        return nil
-    end
-
-    return VitrozeNet.fCallBackDecompress(sMessage)
 end
